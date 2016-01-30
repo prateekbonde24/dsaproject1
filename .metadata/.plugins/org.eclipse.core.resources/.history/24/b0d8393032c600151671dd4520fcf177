@@ -1,0 +1,19 @@
+//============================================================================
+// Name        : project.cpp
+// Author      : Pratik Bonde
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include <iostream>
+#include"team_stats.h"
+using namespace std;
+
+int main() {
+
+	annual_stats a;
+	a.year=5;
+	cout<<a.year;
+	return 0;
+}

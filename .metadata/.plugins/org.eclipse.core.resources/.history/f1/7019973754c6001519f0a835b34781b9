@@ -1,0 +1,8 @@
+NFL: project.o 
+	gcc -o NFL project.o
+
+action.o: action.c action.h act.h
+	gcc -c action.c
+
+dec.o: dec.c version.h
+	gcc -c dec.c

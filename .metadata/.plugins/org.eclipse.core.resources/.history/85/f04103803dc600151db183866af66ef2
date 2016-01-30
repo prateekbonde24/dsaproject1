@@ -1,0 +1,69 @@
+//============================================================================
+// Name        : project.cpp
+// Author      : Pratik Bonde
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
+#include <string>
+#include <ctime>
+#include <vector>
+#include <math.h>
+#include <omp.h>
+
+#include"team_stats.h"
+using namespace std;
+string name;
+vector <int> globalArr;
+
+void start()
+{
+	//cout << name <<"********" << endl;
+	cout<<"Processing fitness data of: "+name<<endl;
+}
+
+void readFile()
+{
+	globalArr.clear();
+	arrLength = 0;
+	string filename = name+".txt";
+	ifstream myfile (filename.c_str());
+	if (myfile.is_open())
+	{
+		int c=0;
+		vector <string> arr;
+		for (string line; getline(myfile, line);){
+			if (!line.empty())
+					{
+					    arr.push_back(line);
+		        	    c++;
+					}
+		         }
+				arrLength = c;
+				for(int i=0; i < arrLength; i++)
+				  {
+					  globalArr.push_back(atoi(arr[i].c_str()));
+					  //cout<<globalArr[i];
+				  }
+
+			    myfile.close();
+		}
+
+	else cout << "-------------------Can't open file----------------------"<<endl;
+}
+int main() {
+
+
+	return 0;
+}
+
+
+void bubblesort(){
+
+
+
+}

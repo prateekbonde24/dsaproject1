@@ -1,0 +1,162 @@
+//============================================================================
+// Name        : project.cpp
+// Author      : Pratik Bonde
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
+#include <string>
+#include <ctime>
+#include <vector>
+#include <math.h>
+#include <omp.h>
+
+#include"team_stats.h"
+using namespace std;
+string name;
+vector <string> globalArr;
+bool sortFlag = false;
+int t_compare= 0;
+
+int no_swaps=0;
+int arrLength=0;
+int num_of_years;
+annual_stats* mydata;
+void start()
+{
+	cout << name <<"********" << endl;
+
+}
+
+void readFile()
+{
+	globalArr.clear();
+	arrLength = 0;
+
+	string filename = name+".txt";
+	ifstream myfile (filename.c_str());
+	if (myfile.is_open())
+	{
+		int c=0;
+		string line;
+		vector <string> arr;
+		while( getline(myfile, line)){
+			if (!line.empty())
+					{
+						if(c==0){
+							stringstream ss(line);
+					    ss>>num_of_years;
+					    cout<<num_of_years<<endl;
+
+						}
+
+						/*if(c!=0){
+							if (!line.empty())
+												{
+												    arr.push_back(line);
+
+												}
+									         }*/
+
+						}
+
+						c++;
+					}
+		/*for(int i=0; i < arr.size(); i++)
+						  {
+							  globalArr.push_back(arr[i].c_str());
+							  //cout<<globalArr[i];
+						  }*/
+		         }
+
+	else {
+			cout << "-------------------Can't open file----------------------"<<endl;
+		}
+			    myfile.close();
+		}
+
+
+void readData()
+{
+
+
+	string filename = name+".txt";
+	ifstream myfile (filename.c_str());
+	if (myfile.is_open())
+	{
+		int count=0;
+		string line;
+
+		while( getline(myfile, line)){
+			if (!line.empty())
+					{
+				if(count!=0){
+						stringstream ss(line);
+				    ss>>num_of_years;
+				    cout<<num_of_years<<endl;
+
+					}
+
+
+				}
+
+		}
+	}
+	 myfile.close();
+}
+
+
+void end()
+{
+	cout<<"End of processing fitness data for: "+name <<endl;
+	name.clear();
+	globalArr.clear();
+	sortFlag = false;
+	arrLength = 0;
+}
+
+void exitFunc()
+{
+	cout<<"Program terminating"<<endl;
+	exit(0);
+}
+
+int main() {
+	string line;
+	getline(cin, line);
+
+	name = line;
+	readFile();
+ mydata=new annual_stats[num_of_years];
+ readData();
+
+
+
+/*	for(int i=0;i<num_of_years;i++){
+		stringstream ss(globalArr[0]);
+		ss>>mydata[0].year;
+
+	}
+
+cout<<mydata[0].year;
+for(int i=0; i<globalArr.size();i++){
+
+	cout<<globalArr[i];
+}*/
+
+
+
+
+	return 0;
+}
+
+
+void bubblesort(){
+
+
+
+}

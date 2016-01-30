@@ -1,0 +1,6 @@
+NFL: project.o 
+	g++ -o NFL project.o
+
+project.o: project.cpp team_stats.h
+	g++ -c project.cpp
+

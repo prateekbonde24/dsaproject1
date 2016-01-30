@@ -1,0 +1,33 @@
+//============================================================================
+// Name        : project.cpp
+// Author      : Pratik Bonde
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
+#include <string>
+#include <ctime>
+#include <vector>
+#include <math.h>
+#include <omp.h>
+
+#include"team_stats.h"
+using namespace std;
+string name;
+vector <int> globalArr;
+int main() {
+
+
+	return 0;
+}
+
+
+void bubblesort(){
+
+
+
+}
