@@ -3,11 +3,11 @@
 ################################################################################
 
 # Add inputs and outputs from these tool invocations to the build variables 
-CPP_SRCS += \
-../src/project.cpp 
-
 O_SRCS += \
 ../src/project.o 
+
+CPP_SRCS += \
+../src/project.cpp 
 
 OBJS += \
 ./src/project.o 
