@@ -1,0 +1,89 @@
+//============================================================================
+// Name        : Time.cpp
+// Author      : Pratik Bonde
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+
+#include<ctime>
+#include<iostream>
+#include<cstdlib>
+#include<fstream>
+
+using namespace std;
+void bubble(int myarray[],int len);
+void swap(int* a, int* b);
+int partition (int arr[], int l, int h);
+void quickSort(int arr[], int l, int h);
+int main()
+{
+	int n;
+	cerr << "How many random numbers do you want to generate?\n";
+	cin >> n;
+    cout << n << endl;
+    int a=new int[n];
+    clock_t start;
+    double duration;
+	srand( (unsigned) time(NULL) );
+
+	for(int i = 0; i < n; i++){
+		a[i]= rand() % 100000;
+	}
+
+	start =clock();
+
+
+	duration = ( clock() - start ) / (double) (CLOCKS_PER_SEC/1000);
+
+	cout<<"Time: "<< duration <<" ms \n";
+}
+
+void bubble(int myarray[],int len) {
+
+int count;
+count=len;
+	for (int a = 1; a < count; a++) {
+		for (int b = 0; b < count - 1; b++) {
+
+			if (myarray[b]>myarray[b + 1]) {
+				swap(&myarray[b],&myarray[b+1]);
+
+			}
+		}
+	}
+
+
+}
+void swap(int* a, int* b)
+{
+    int t = *a;
+    *a = *b;
+    *b = t;
+}
+int partition (int arr[], int l, int h)
+{
+    int x = arr[h];    // pivot
+    int i = (l - 1);  // Index of smaller element
+
+    for (int j = l; j <= h- 1; j++)
+    {
+        // If current element is smaller than or equal to pivot
+        if (arr[j] <= x)
+        {
+            i++;    // increment index of smaller element
+            swap(&arr[i], &arr[j]);  // Swap current element with index
+        }
+    }
+    swap(&arr[i + 1], &arr[h]);
+    return (i + 1);
+}
+void quickSort(int arr[], int l, int h)
+{
+    if (l < h)
+    {
+        int p = partition(arr, l, h); /* Partitioning index */
+        quickSort(arr, l, p - 1);
+        quickSort(arr, p + 1, h);
+    }
+}
