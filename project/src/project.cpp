@@ -20,10 +20,9 @@ using namespace std;
 string name;
 vector<string> globalArr;
 vector<string> commands;
-bool sortFlag = false;
-int t_compare = 0;
+
 int total_commands = 0;
-int no_swaps = 0;
+
 int arrLength = 0;
 int num_of_years;
 annual_stats* mydata;
@@ -33,10 +32,9 @@ bool comparefield(string field, team_stats t1, team_stats t2);
 template<class comp> int greaterthan(comp item1, comp item2);
 bool ifequal(int greater, team_stats t1, team_stats t2);
 void printfunction(team_stats t[], string field, string order, int len);
-void start() {
-	cout << name << "********" << endl;
+void insertfile();
 
-}
+
 vector<string> split(const string& s) {
 	vector<string> ret;
 	typedef string::size_type string_size;
@@ -64,46 +62,7 @@ vector<string> split(const string& s) {
 	}
 	return ret;
 }
-void readFile() {
-	globalArr.clear();
-	arrLength = 0;
 
-	string filename = name + ".txt";
-	//string filename = "2015-game-stats.txt";
-	ifstream myfile(filename.c_str());
-	if (myfile.is_open()) {
-		int c = 0;
-		string line;
-		vector<string> arr;
-		while (getline(myfile, line)) {
-			if (!line.empty()) {
-				if (c == 0) {
-					stringstream ss(line);
-					ss >> num_of_years;
-					cout << num_of_years << endl;
-
-				}
-
-				if (c != 0) {
-					if (!line.empty()) {
-						arr.push_back(line);
-
-					}
-				}
-
-			}
-
-			c++;
-		}
-		for (size_t i = 0; i < arr.size(); i++) {
-			globalArr.push_back(arr[i].c_str());
-			//	cout << globalArr[i] << endl;
-		}
-	}
-	//cout << globalArr.size();
-
-	myfile.close();
-}
 
 void insertData() {
 	int count = 0;
@@ -145,7 +104,7 @@ void insertData() {
 
 	}
 	total_commands = atoi(globalArr[count++].c_str());
-	//cout<<total_commands<<endl;
+cout<<total_commands<<endl;
 	for (int i = 0; i < total_commands; i++) {
 		commands.push_back(globalArr[count].c_str());
 		vector<string> v = split(globalArr[count++].c_str());
@@ -170,7 +129,7 @@ void insertData() {
 					string order;
 					field = v[2].c_str();
 					order = v[3].c_str();
-					int count=sizeof(mydata[year_index].teams)/sizeof(mydata[year_index].teams[0]);
+					int count=NO_TEAMS;
 					//cout<<count <<endl;
 					bubble(mydata[year_index].teams, field,count);
 				    printfunction(mydata[year_index].teams, field, order,count);
@@ -181,22 +140,15 @@ void insertData() {
 			}
 
 		}
-
-		//cout<<commands[i]<<endl;
-
-		/*
-		 for (vector<string>::size_type i = 0; i != v.size(); ++i){
-		 cout << v[i] << endl;
-		 }*/
 	}
 
 }
 
 void end() {
-	cout << "End of processing fitness data for: " + name << endl;
+	cout << "End of processing  data for: " + name << endl;
 	name.clear();
 	globalArr.clear();
-	sortFlag = false;
+
 	arrLength = 0;
 	delete mydata;
 }
@@ -211,14 +163,47 @@ int main() {
 	getline(cin, line);
 
 	name = line;
-	readFile();
-	mydata = new annual_stats[num_of_years];
+	globalArr.clear();
+	arrLength = 0;
+
+	string filename = name + ".txt";
+	//string filename = "2015-game-stats.txt";
+	ifstream myfile(filename.c_str());
+	if (myfile.is_open()) {
+		int c = 0;
+		string line;
+		vector<string> arr;
+		while (getline(myfile, line)) {
+			if (!line.empty()) {
+				if (c == 0) {
+					stringstream ss(line);
+					ss >> num_of_years;
+					mydata = new annual_stats[num_of_years+1];
+				}
+				if (c != 0) {
+					if (!line.empty()) {
+						arr.push_back(line);
+					}
+				}
+			}
+
+			c++;
+		}
+		for (size_t i = 0; i < arr.size(); i++) {
+			globalArr.push_back(arr[i].c_str());
+			//	cout << globalArr[i] << endl;
+		}
+	}
+	//cout << globalArr.size();
+
+	myfile.close();
+
 	insertData();
-	end();
+end();
 	return 0;
 }
 
-void bubble(struct team_stats myarray[], string field, int count) {
+void bubble(struct team_stats *myarray, string field, int count) {
 
 	team_stats t;
 
@@ -331,7 +316,7 @@ bool ifequal(int greater, team_stats t1, team_stats t2) {
 	if (greater == 2) {
 		result = true;
 	} else if (greater == 1) {
-		if (t1.team_name > t2.team_name) {
+		if (strcmp(t1.team_name,t2.team_name)>0) {
 			result = true;
 		}
 	}
@@ -354,7 +339,7 @@ template<class comp> int greaterthan(comp item1, comp item2) {
 
 }
 
-void printfunction(team_stats t[], string field, string order, int len) {
+void printfunction(team_stats *t, string field, string order, int len) {
 	//int len = static_cast<int>(sizeof(t)/sizeof(t[0]));
 
 	if ("team_name" == field) {

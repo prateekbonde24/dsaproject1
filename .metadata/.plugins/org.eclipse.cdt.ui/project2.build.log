@@ -1,0 +1,32 @@
+20:49:29 **** Build of configuration Debug for project project2 ****
+make all 
+Building file: ../src/comments.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/comments.d" -MT"src/comments.o" -o "src/comments.o" "../src/comments.cpp"
+Finished building: ../src/comments.cpp
+ 
+Building file: ../src/project.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/project.d" -MT"src/project.o" -o "src/project.o" "../src/project.cpp"
+../src/project.cpp: In function ‘void insertData()’:
+../src/project.cpp:260:10: warning: variable ‘year’ set but not used [-Wunused-but-set-variable]
+      int year[length];
+          ^
+../src/project.cpp: In function ‘void bubblerange(combinedteam*, std::string, int, std::string)’:
+../src/project.cpp:1202:15: warning: unused variable ‘t’ [-Wunused-variable]
+  combinedteam t;
+               ^
+../src/project.cpp: In function ‘void find(combinedteam*, std::string, int, std::string)’:
+../src/project.cpp:1319:15: warning: unused variable ‘t’ [-Wunused-variable]
+  combinedteam t;
+               ^
+Finished building: ../src/project.cpp
+ 
+Building target: project2
+Invoking: GCC C++ Linker
+g++  -o "project2"  ./src/comments.o ./src/project.o   
+Finished building target: project2
+ 
+
+20:49:29 Build Finished (took 919ms)
+

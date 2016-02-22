@@ -1,3 +1,126 @@
-19:32:18 **** Incremental Build of configuration Debug for project project ****
+20:49:18 **** Clean-only build of configuration Debug for project project2 ****
+make clean 
+rm -rf  ./src/comments.o ./src/project.o  ./src/comments.d ./src/project.d  project2
+ 
+20:49:27 **** Build of configuration Debug for project myproject ****
+make all 
+Building file: ../src/main.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/main.d" -MT"src/main.o" -o "src/main.o" "../src/main.cpp"
+Finished building: ../src/main.cpp
+ 
+Building target: myproject
+Invoking: GCC C++ Linker
+g++  -o "myproject"  ./src/main.o   
+Finished building target: myproject
+ 
+20:49:28 **** Clean-only build of configuration Debug for project project ****
+make clean 
+rm -rf  ./src/project.o  ./src/project.d  project
+ 
+20:49:28 **** Build of configuration Debug for project project ****
+make all 
+Building file: ../src/project.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/project.d" -MT"src/project.o" -o "src/project.o" "../src/project.cpp"
+Finished building: ../src/project.cpp
+ 
+Building target: project
+Invoking: GCC C++ Linker
+g++  -o "project"  ./src/project.o   
+Finished building target: project
+ 
+20:49:28 **** Clean-only build of configuration Debug for project project2 ****
+make clean 
+rm -rf  ./src/comments.o ./src/project.o  ./src/comments.d ./src/project.d  project2
+ 
+20:49:29 **** Build of configuration Debug for project project2 ****
+make all 
+Building file: ../src/comments.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/comments.d" -MT"src/comments.o" -o "src/comments.o" "../src/comments.cpp"
+Finished building: ../src/comments.cpp
+ 
+Building file: ../src/project.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/project.d" -MT"src/project.o" -o "src/project.o" "../src/project.cpp"
+../src/project.cpp: In function ‘void insertData()’:
+../src/project.cpp:260:10: warning: variable ‘year’ set but not used [-Wunused-but-set-variable]
+      int year[length];
+          ^
+../src/project.cpp: In function ‘void bubblerange(combinedteam*, std::string, int, std::string)’:
+../src/project.cpp:1202:15: warning: unused variable ‘t’ [-Wunused-variable]
+  combinedteam t;
+               ^
+../src/project.cpp: In function ‘void find(combinedteam*, std::string, int, std::string)’:
+../src/project.cpp:1319:15: warning: unused variable ‘t’ [-Wunused-variable]
+  combinedteam t;
+               ^
+Finished building: ../src/project.cpp
+ 
+Building target: project2
+Invoking: GCC C++ Linker
+g++  -o "project2"  ./src/comments.o ./src/project.o   
+Finished building target: project2
+ 
+22:29:31 **** Incremental Build of configuration Debug for project project ****
+make all 
+make: Nothing to be done for `all'.
+22:30:58 **** Build of configuration Debug for project project3 ****
+make all 
+Building file: ../src/comments.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/comments.d" -MT"src/comments.o" -o "src/comments.o" "../src/comments.cpp"
+Finished building: ../src/comments.cpp
+ 
+Building file: ../src/project.cpp
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"src/project.d" -MT"src/project.o" -o "src/project.o" "../src/project.cpp"
+../src/project.cpp:49:5: warning: ‘int main(int)’ takes only zero or two arguments [-Wmain]
+ int main(int argc) {
+     ^
+../src/project.cpp: In function ‘int main(int)’:
+../src/project.cpp:184:11: warning: unused variable ‘count’ [-Wunused-variable]
+       int count = NO_TEAMS;
+           ^
+../src/project.cpp:165:10: warning: variable ‘year_index’ set but not used [-Wunused-but-set-variable]
+      int year_index;
+          ^
+../src/project.cpp:229:11: warning: variable ‘year’ set but not used [-Wunused-but-set-variable]
+       int year[length];
+           ^
+../src/project.cpp:55:7: warning: unused variable ‘c’ [-Wunused-variable]
+   int c = 0;
+       ^
+../src/project.cpp:57:7: warning: unused variable ‘finish’ [-Wunused-variable]
+   int finish;
+       ^
+../src/project.cpp: In function ‘void insertData()’:
+../src/project.cpp:432:9: warning: variable ‘year’ set but not used [-Wunused-but-set-variable]
+     int year[length];
+         ^
+../src/project.cpp: In function ‘void bubble(team_stats*, std::string, int, std::string)’:
+../src/project.cpp:522:12: warning: unused variable ‘t’ [-Wunused-variable]
+ team_stats t;
+            ^
+../src/project.cpp: In function ‘void bubblerange(combinedteam*, std::string, int, std::string)’:
+../src/project.cpp:1370:14: warning: unused variable ‘t’ [-Wunused-variable]
+ combinedteam t;
+              ^
+../src/project.cpp: In function ‘void find(combinedteam*, std::string, int, std::string)’:
+../src/project.cpp:1487:14: warning: unused variable ‘t’ [-Wunused-variable]
+ combinedteam t;
+              ^
+Finished building: ../src/project.cpp
+ 
+Building target: project3
+Invoking: GCC C++ Linker
+g++  -o "project3"  ./src/comments.o ./src/project.o   
+Finished building target: project3
+ 
+22:31:21 **** Incremental Build of configuration Debug for project project3 ****
+make all 
+make: Nothing to be done for `all'.
+22:31:57 **** Incremental Build of configuration Debug for project project3 ****
 make all 
 make: Nothing to be done for `all'.

@@ -1,0 +1,1 @@
+private.o: ../private.cc

@@ -1,0 +1,72 @@
+17:20:40 **** Build of configuration Debug for project openmp ****
+make all 
+Building file: ../parfor.cc
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"parfor.d" -MT"parfor.o" -o "parfor.o" "../parfor.cc"
+../parfor.cc:19:0: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+ #pragma omp parallel shared(n) private(i) num_threads(8)
+ ^
+../parfor.cc:21:0: warning: ignoring #pragma omp for [-Wunknown-pragmas]
+  #pragma omp for 
+ ^
+Finished building: ../parfor.cc
+ 
+Building file: ../private.cc
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"private.d" -MT"private.o" -o "private.o" "../private.cc"
+../private.cc:23:0: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+ #pragma omp parallel for private(i,a) num_threads(4)
+ ^
+../private.cc: In function ‘int main()’:
+../private.cc:14:62: warning: ‘a’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+  printf( "Arbirtary values for a = %d and i = %d\n\n", a, i );
+                                                              ^
+../private.cc:14:62: warning: ‘i’ may be used uninitialized in this function [-Wmaybe-uninitialized]
+Finished building: ../private.cc
+ 
+Building file: ../reduction.cc
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"reduction.d" -MT"reduction.o" -o "reduction.o" "../reduction.cc"
+../reduction.cc:25:0: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+ #pragma omp parallel for default(none) shared(n,a) reduction(+:sum) num_threads(2)
+ ^
+../reduction.cc: In function ‘int main()’:
+../reduction.cc:7:16: warning: unused variable ‘local_sum’ [-Wunused-variable]
+  int i, n, *a, local_sum, sum, tid;
+                ^
+../reduction.cc:7:32: warning: unused variable ‘tid’ [-Wunused-variable]
+  int i, n, *a, local_sum, sum, tid;
+                                ^
+Finished building: ../reduction.cc
+ 
+Building file: ../schedule.cc
+Invoking: GCC C++ Compiler
+g++ -O0 -g3 -Wall -c -fmessage-length=0 -MMD -MP -MF"schedule.d" -MT"schedule.o" -o "schedule.o" "../schedule.cc"
+../schedule.cc:18:0: warning: ignoring #pragma omp parallel [-Wunknown-pragmas]
+ #pragma omp parallel for default(none) schedule(runtime) private(i,j) shared(n) num_threads(4)
+ ^
+Finished building: ../schedule.cc
+ 
+Building target: openmp
+Invoking: GCC C++ Linker
+g++  -o "openmp"  ./parfor.o ./private.o ./reduction.o ./schedule.o   
+./private.o: In function `main':
+/home/pratik/workspace1/openmp/Debug/../private.cc:6: multiple definition of `main'
+./parfor.o:/home/pratik/workspace1/openmp/Debug/../parfor.cc:6: first defined here
+./reduction.o: In function `main':
+/home/pratik/workspace1/openmp/Debug/../reduction.cc:6: multiple definition of `main'
+./parfor.o:/home/pratik/workspace1/openmp/Debug/../parfor.cc:6: first defined here
+./schedule.o: In function `main':
+/home/pratik/workspace1/openmp/Debug/../schedule.cc:6: multiple definition of `main'
+./parfor.o:/home/pratik/workspace1/openmp/Debug/../parfor.cc:6: first defined here
+./parfor.o: In function `main':
+parfor.cc:(.text+0x5a): undefined reference to `omp_get_thread_num'
+./private.o: In function `main':
+private.cc:(.text+0x74): undefined reference to `omp_get_thread_num'
+./schedule.o: In function `main':
+schedule.cc:(.text+0x50): undefined reference to `omp_get_thread_num'
+collect2: error: ld returned 1 exit status
+make: *** [openmp] Error 1
+
+17:20:40 Build Finished (took 322ms)
+

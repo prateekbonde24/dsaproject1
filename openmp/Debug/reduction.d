@@ -1,0 +1,1 @@
+reduction.o: ../reduction.cc

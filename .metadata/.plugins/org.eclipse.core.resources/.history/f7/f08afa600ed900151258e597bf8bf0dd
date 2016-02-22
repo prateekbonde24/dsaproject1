@@ -1,0 +1,2887 @@
+//============================================================================
+// Name        : project.cpp
+// Author      : Pratik Bonde
+// Version     :
+// Copyright   : Your copyright notice
+// Description : Hello World in C++, Ansi-style
+//============================================================================
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <cstdlib>
+#include <string.h>
+#include <ctime>
+#include <math.h>
+#include <omp.h>
+
+#include"team_stats.h"
+using namespace std;
+string name;
+
+int total_commands = 0;
+
+int arrLength = 0;
+int num_of_years;
+annual_stats* mydata;
+void end();
+void quickSort(struct combinedteam myarray[], int l, int h, string field,
+		string order);
+void printfunctionsingle(combinedteam t[], string field, string order, int len);
+int partition(struct combinedteam myarray[], int l, int h, string field,
+		string order);
+void qfind(struct combinedteam myarray[], string field, int count, string item);
+void bubble(struct team_stats myarray[], string field, int count, string order);
+bool comparefield(string field, team_stats t1, team_stats t2, string order);
+template<class comp> int greaterthan(comp item1, comp item2);
+bool ifequal(int greater, team_stats t1, team_stats t2, string order);
+void printfunction(team_stats t[], string field, string order, int len);
+team_stats* ParallelMergeSort(team_stats* A, int lo, int hi,string field);
+team_stats* Merge(team_stats* A,int p, int q, int r,string field)
+void swap(struct team_stats* i, struct team_stats* j);
+void swap2(struct combinedteam* i, struct combinedteam* j);
+void printcombined(combinedteam t[], string field, string order, int len);
+void copydata(int start_index, int end_index, annual_stats a[],
+		combinedteam c[]);
+void bubblerange(struct combinedteam myarray[], string field, int count,
+		string order);
+void find(struct combinedteam myarray[], string field, int count, string item);
+bool comparefieldcombined(string field, combinedteam t1, combinedteam t2,
+		string order);
+bool ifequalc(int greater, combinedteam t1, combinedteam t2, string order);
+
+int main(int argc, char *argv[]) {
+	string filename = argv[1];
+	name = filename;
+	int num_commands;
+	ifstream myfile(filename.c_str());
+	if (myfile.is_open()) {
+		int c = 0;
+		int finish;
+		string line;
+		getline(myfile, line); // line 1
+		if (!line.empty()) {
+			stringstream ss(line);
+			ss >> num_of_years;
+			mydata = new annual_stats[num_of_years];
+		}
+		for (int a = 0; a < num_of_years; a++) {
+			getline(myfile, line); //year line
+			stringstream ss(line);
+			int year;
+			ss >> year;
+
+			mydata[a].year = year;
+
+			//cout << "YEAR" << mydata[a].year << endl;
+			for (int i = 0; i < 32; i++) {
+				char buf[1000];
+				myfile.getline(buf, 1000);
+
+				char * token[20];
+
+				int k = 0;
+				token[k] = strtok(buf, "\t");
+				//cout << token[k] << endl;
+				strcpy(mydata[a].teams[i].team_name, token[k]);	//Team name
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].games = atoi(token[k]);		// Games
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].pts_per_game = atof(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].total_points = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].scrimmage_plays = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].yds_per_game = atof(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].yds_per_play = atof(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].first_per_game = atof(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].third_md = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].third_att = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].third_pct = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].fourth_md = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].fourth_att = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].fourth_pct = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].penalties = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].pen_yds = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				strcpy(mydata[a].teams[i].top_per_game, token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].fum = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].lost = atoi(token[k]);
+				//cout << token[k] << endl;
+				token[++k] = strtok(NULL, "\t");
+				mydata[a].teams[i].to = atoi(token[k]);
+
+			}
+
+		}
+		if (getline(myfile, line)) {
+
+			num_commands = atoi(line.c_str());
+			//cout << "Commands-" << num_commands << endl;
+		}
+
+		for (int k = 0; k < num_commands; k++) {
+
+			char buf[1000];
+			myfile.getline(buf, 1000);
+			cout << endl;
+			cout << buf << endl;
+			char * token[20];
+
+			int j = 0;
+			token[j] = strtok(buf, " ");
+			if (strcmp(token[j], "bsort") == 0) {
+				token[++j] = strtok(NULL, " ");
+				if (strcmp(token[j], "range") != 0) {
+					int year_exists = 0;
+
+					int given_year = atoi(token[j]);
+					//cout<<given_year;
+					int year_index;
+					for (int i = 0; i < num_of_years; i++) {
+
+						if (mydata[i].year == given_year) {
+							year_exists = 1;
+							year_index = i;
+
+						}
+
+					}
+					if (year_exists == 1) {
+						token[++j] = strtok(NULL, " ");
+						string field;
+						string order;
+						field = token[j];
+
+						token[++j] = strtok(NULL, " ");
+						order = token[j];
+
+						int count = NO_TEAMS;
+
+						int len = order.length();
+
+						if (order[len - 1] == '\r') {
+							order.erase(order.size() - 1);
+
+						}
+						bubble(mydata[year_index].teams, field, count, order);
+						//printfunction(mydata[year_index].teams,field,order,count);
+
+					} else {
+						cout << "Error: No such year." << endl;
+					}
+
+				}
+
+				else if (strcmp(token[j], "range") == 0) {
+					int start_year_exists, start_year_index, end_year_exists,
+							end_year_index;
+					token[++j] = strtok(NULL, " ");
+					int start_year = atoi(token[j]);
+					token[++j] = strtok(NULL, " ");
+					int end_year = atoi(token[j]);
+					int length;
+					length = end_year - start_year + 1;
+					for (int i = 0; i < num_of_years; i++) {
+
+						if (mydata[i].year == start_year) {
+							start_year_exists = 1;
+							start_year_index = i;
+
+						}
+					}
+					for (int i = 0; i < num_of_years; i++) {
+
+						if (mydata[i].year == end_year) {
+							end_year_exists = 1;
+							end_year_index = i;
+
+						}
+					}
+
+					if (start_year_exists == 1 && end_year_exists == 1) {
+						string field;
+						string order;
+						int a;
+						token[++j] = strtok(NULL, " ");
+						field = token[j];
+						token[++j] = strtok(NULL, " ");
+						order = token[j];
+						int year[length];
+						int year_check = start_year;
+						for (a = 0; a < length; a++) {
+							year[a] = year_check;
+							//cout << year[a] << endl;
+							year_check++;
+
+						}
+						int len = order.length();
+						if (order[len - 1] == '\r') {
+							order.erase(order.size() - 1);
+
+						}
+						combinedteam* myteam;
+						int lengthofmyteam;
+						lengthofmyteam = NO_TEAMS * length;
+						myteam = new combinedteam[lengthofmyteam + 1];
+						copydata(start_year_index, end_year_index, mydata,
+								myteam);
+						bubblerange(myteam, field, lengthofmyteam, order);
+						delete myteam;
+
+					}
+
+				}
+
+			} else if (strcmp(token[j], "qsort") == 0) {
+				token[++j] = strtok(NULL, " ");
+				if (strcmp(token[j], "range") != 0) {
+					int year_exists = 0;
+
+					int given_year = atoi(token[j]);
+
+					int year_index;
+					for (int i = 0; i < num_of_years; i++) {
+
+						if (mydata[i].year == given_year) {
+							year_exists = 1;
+							year_index = i;
+
+						}
+
+					}
+					if (year_exists == 1) {
+						token[++j] = strtok(NULL, " ");
+						string field;
+						string order;
+						field = token[j];
+
+						token[++j] = strtok(NULL, " ");
+						order = token[j];
+
+						int count = NO_TEAMS;
+
+						int len = order.length();
+
+						if (order[len - 1] == '\r') {
+							order.erase(order.size() - 1);
+
+						}
+						combinedteam* myteam;
+						int lengthofmyteam;
+						lengthofmyteam = NO_TEAMS;
+						myteam = new combinedteam[lengthofmyteam];
+						//cout<<"hey"<<endl;
+						copydata(year_index, year_index, mydata, myteam);
+						quickSort(myteam, 0, lengthofmyteam - 1, field, order);
+						printfunctionsingle(myteam, field, order,
+								lengthofmyteam);
+						delete myteam;
+
+					} else {
+						cout << "Error: No such year." << endl;
+					}
+
+				}
+
+				else if (strcmp(token[j], "range") == 0) {
+					int start_year_exists, start_year_index, end_year_exists,
+							end_year_index;
+					token[++j] = strtok(NULL, " ");
+					int start_year = atoi(token[j]);
+					token[++j] = strtok(NULL, " ");
+					int end_year = atoi(token[j]);
+					int length;
+					length = end_year - start_year + 1;
+					for (int i = 0; i < num_of_years; i++) {
+
+						if (mydata[i].year == start_year) {
+							start_year_exists = 1;
+							start_year_index = i;
+
+						}
+					}
+					for (int i = 0; i < num_of_years; i++) {
+
+						if (mydata[i].year == end_year) {
+							end_year_exists = 1;
+							end_year_index = i;
+
+						}
+					}
+
+					if (start_year_exists == 1 && end_year_exists == 1) {
+						string field;
+						string order;
+						int a;
+						token[++j] = strtok(NULL, " ");
+						field = token[j];
+						token[++j] = strtok(NULL, " ");
+						order = token[j];
+						int year[length];
+						int year_check = start_year;
+						for (a = 0; a < length; a++) {
+							year[a] = year_check;
+							//cout << year[a] << endl;
+							year_check++;
+
+						}
+						int len = order.length();
+						if (order[len - 1] == '\r') {
+							order.erase(order.size() - 1);
+
+						}
+						combinedteam* myteam;
+						int lengthofmyteam;
+						lengthofmyteam = NO_TEAMS * length;
+						myteam = new combinedteam[lengthofmyteam + 1];
+						copydata(start_year_index, end_year_index, mydata,
+								myteam);
+						quickSort(myteam, 0, lengthofmyteam - 1, field, order);
+						printcombined(myteam, field, order, lengthofmyteam);
+						delete myteam;
+					}
+
+				}
+
+			} else if (strcmp(token[j], "qfind") == 0) {
+				int year_exists_find = 0;
+				token[++j] = strtok(NULL, " ");
+				int given_year_find = atoi(token[j]);
+				int index;
+				for (int i = 0; i < num_of_years; i++) {
+
+					if (mydata[i].year == given_year_find) {
+						year_exists_find = 1;
+						index = i;
+
+					}
+
+				}
+				if (year_exists_find == 1) {
+					string field;
+					string item;
+					token[++j] = strtok(NULL, " ");
+					field = token[j];
+					token[++j] = strtok(NULL, " ");
+					item = token[j];
+					int len = item.length();
+					if (item[len - 1] == '\r') {
+						item.erase(item.size() - 1);
+
+					}
+					int count = NO_TEAMS;
+					combinedteam* team;
+					team = new combinedteam[NO_TEAMS];
+					copydata(index, index, mydata, team);
+
+					qfind(team, field, count, item);
+
+					delete team;
+				} else {
+					cout << "Error: No such year.";
+				}
+			} else if (strcmp(token[j], "bfind") == 0) {
+				int year_exists_find = 0;
+				token[++j] = strtok(NULL, " ");
+				int given_year_find = atoi(token[j]);
+				int index;
+				for (int i = 0; i < num_of_years; i++) {
+
+					if (mydata[i].year == given_year_find) {
+						year_exists_find = 1;
+						index = i;
+
+					}
+
+				}
+				if (year_exists_find == 1) {
+					string field;
+					string item;
+					token[++j] = strtok(NULL, " ");
+					field = token[j];
+					token[++j] = strtok(NULL, " ");
+					item = token[j];
+					int len = item.length();
+					if (item[len - 1] == '\r') {
+						item.erase(item.size() - 1);
+
+					}
+					int count = NO_TEAMS;
+					combinedteam* team;
+					team = new combinedteam[NO_TEAMS];
+					copydata(index, index, mydata, team);
+
+					find(team, field, count, item);
+
+					delete team;
+				} else {
+					cout << "Error: No such year.";
+				}
+
+			}
+
+			else if (strcmp(token[j], "pmin") == 0) {
+				token[++j] = strtok(NULL, " ");
+				int given_year;
+				given_year = atoi(token[j]);
+				token[++j] = strtok(NULL, " ");
+				string field;
+				field = token[j];
+				int len = field.length();
+				if (field[len - 1] == '\r') {
+					field.erase(field.size() - 1);
+
+				}
+
+			} else if (strcmp(token[j], "pmax") == 0) {
+				token[++j] = strtok(NULL, " ");
+				int given_year;
+				given_year = atoi(token[j]);
+				token[++j] = strtok(NULL, " ");
+				string field;
+				field = token[j];
+				int len = field.length();
+				if (field[len - 1] == '\r') {
+					field.erase(field.size() - 1);
+
+				}
+
+
+
+			}
+
+			else {
+				cout << "No such command" << endl;
+				;
+			}
+
+		}
+	}
+	myfile.close();
+
+	return 0;
+}
+
+void end() {
+	cout << "End of processing " + name << endl;
+	name.clear();
+	delete mydata;
+}
+
+/*
+ void exitFunc() {
+ cout << "Program terminating" << endl;
+ exit(0);
+ }
+ */
+
+void bubble(struct team_stats myarray[], string field, int count,
+		string order) {
+
+	team_stats t;
+
+	for (int a = 1; a < count; a++) {
+		for (int b = 0; b < count - 1; b++) {
+
+			if (comparefield(field, myarray[b], myarray[b + 1], order)) {
+				swap(&myarray[b], &myarray[b + 1]);
+
+			}
+		}
+	}
+
+	printfunction(myarray, field, order, count);
+}
+
+void swap(struct team_stats* i, struct team_stats* j) {
+	team_stats t;
+	t = *i;
+	*i = *j;
+	*j = t;
+
+}
+void swap2(struct combinedteam* i, struct combinedteam* j) {
+	combinedteam t;
+	t = *i;
+	*i = *j;
+	*j = t;
+
+}
+bool comparefield(string field, team_stats t1, team_stats t2, string order) {
+
+	int greater = 0;
+	bool result;
+	if (field.compare("team_name") == 0) {
+
+		if (strcmp(t1.team_name, t2.team_name) > 0) {
+			greater = 2;
+		} else if (strcmp(t1.team_name, t2.team_name) == 0) {
+			greater = 0;
+		}
+
+	}
+
+	else if (field.compare("games") == 0) {
+
+		greater = greaterthan(t1.games, t2.games);
+
+	} else if (field.compare("pts_per_game") == 0) {
+		greater = greaterthan(t1.pts_per_game, t2.pts_per_game);
+
+	} else if (field.compare("total_points") == 0) {
+		greater = greaterthan(t1.total_points, t2.total_points);
+
+	} else if (field.compare("scrimmage_plays") == 0) {
+		greater = greaterthan(t1.scrimmage_plays, t2.scrimmage_plays);
+
+	} else if (field.compare("yds_per_game") == 0) {
+		greater = greaterthan(t1.yds_per_game, t2.yds_per_game);
+
+	} else if (field.compare("yds_per_play") == 0) {
+		greater = greaterthan(t1.yds_per_play, t2.yds_per_play);
+
+	} else if (field.compare("first_per_game") == 0) {
+		greater = greaterthan(t1.first_per_game, t2.first_per_game);
+
+	} else if (field.compare("third_md") == 0) {
+		greater = greaterthan(t1.third_md, t2.third_md);
+
+	} else if (field.compare("third_att") == 0) {
+		greater = greaterthan(t1.third_att, t2.third_att);
+
+	} else if (field.compare("third_pct") == 0) {
+		greater = greaterthan(t1.third_pct, t2.third_pct);
+
+	} else if (field.compare("fourth_md") == 0) {
+		greater = greaterthan(t1.fourth_md, t2.fourth_md);
+
+	} else if (field.compare("fourth_att") == 0) {
+		greater = greaterthan(t1.fourth_att, t2.fourth_att);
+
+	} else if (field.compare("fourth_pct") == 0) {
+		greater = greaterthan(t1.fourth_pct, t2.fourth_pct);
+
+	} else if (field.compare("penalties") == 0) {
+		greater = greaterthan(t1.penalties, t2.penalties);
+
+	} else if (field.compare("pen_yds") == 0) {
+		greater = greaterthan(t1.pen_yds, t2.pen_yds);
+
+	} else if (field.compare("top_per_game") == 0) {
+		if (strcmp(t1.top_per_game, t2.top_per_game) > 0) {
+			greater = 2;
+		} else if (strcmp(t1.top_per_game, t2.top_per_game) == 0) {
+			greater = 1;
+		}
+
+	} else if (field.compare("fum") == 0) {
+		greater = greaterthan(t1.fum, t2.fum);
+
+	} else if (field.compare("lost") == 0) {
+		greater = greaterthan(t1.lost, t2.lost);
+
+	} else if (field.compare("to") == 0) {
+		greater = greaterthan(t1.to, t2.to);
+
+	} else {
+		cout << "Error: No such field." << endl;
+	}
+
+	result = ifequal(greater, t1, t2, order);
+
+	return result;
+
+}
+
+bool ifequal(int greater, team_stats t1, team_stats t2, string order) {
+
+	bool result = false;
+	if (greater == 2) {
+		result = true;
+	} else if (greater == 1) {
+		if (strcmp(t1.team_name, t2.team_name) > 0) {
+			if (order.compare("incr") == 0) {
+				result = true;
+			} else {
+				result = false;
+			}
+
+		}
+	}
+
+	return result;
+}
+
+template<class comp> int greaterthan(comp item1, comp item2) {
+
+	if (item1 > item2) {
+		return 2;
+	} else if (item1 == item2) {
+		return 1;
+	} else {
+		return 0;
+	}
+
+}
+
+void printfunction(team_stats t[], string field, string order, int len) {
+
+	cout << "\n" << endl;
+	if ("team_name" == field) {
+		cout << "Team Name" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int k = 0; k < len; k++) {
+				cout << t[k].team_name << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int k = len - 1; k >= 0; k--) {
+				cout << t[k].team_name << endl;
+
+			}
+		}
+
+	}
+
+	else if ("games" == field) {
+
+		cout << "Team Name \t \t" << field << "\n\n" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].games << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].games << endl;
+
+			}
+		}
+
+	}
+
+	else if ("pts_per_game" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].pts_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].pts_per_game << endl;
+
+			}
+		}
+
+	} else if ("total_points" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].total_points << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].total_points << endl;
+
+			}
+		}
+
+	} else if ("scrimmage_plays" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].scrimmage_plays << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].scrimmage_plays << endl;
+
+			}
+		}
+
+	} else if ("yds_per_game" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_game << endl;
+
+			}
+		}
+
+	} else if ("yds_per_play" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_play << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_play << endl;
+
+			}
+		}
+
+	} else if ("first_per_game" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].first_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].first_per_game << endl;
+
+			}
+		}
+
+	} else if ("third_md" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_md << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_md << endl;
+
+			}
+		}
+
+	} else if ("third_att" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_att << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_att << endl;
+
+			}
+		}
+
+	} else if ("third_pct" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_pct << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_pct << endl;
+
+			}
+		}
+
+	} else if ("fourth_md" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_md << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_md << endl;
+
+			}
+		}
+
+	} else if ("fourth_att" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_att << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_att << endl;
+
+			}
+		}
+
+	} else if ("fourth_pct" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_pct << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_pct << endl;
+
+			}
+		}
+
+	} else if ("penalties" == field) {
+
+		cout << "Team Name \t\t" << field << endl;
+
+		if (strcmp(order.c_str(), "incr") == 0) {
+			cout << "inside compare" << endl;
+			for (int i = 0; i < len; i++) {
+				cout << "inside for" << endl;
+				cout << t[i].team_name << '\t' << t[i].penalties << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].penalties << endl;
+
+			}
+		}
+
+	} else if ("pen_yds" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].pen_yds << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].pen_yds << endl;
+
+			}
+		}
+
+	} else if ("top_per_game" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].top_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].top_per_game << endl;
+
+			}
+		}
+
+	} else if ("fum" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fum << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fum << endl;
+
+			}
+		}
+
+	} else if ("lost" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].lost << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].lost << endl;
+
+			}
+		}
+
+	} else if ("to" == field) {
+		cout << "Team Name \t\t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].to << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].to << endl;
+
+			}
+		}
+
+	} else {
+		cout << "Error: No such field. PRINT FUNC" << endl;
+	}
+
+}
+
+void copydata(int start_index, int end_index, annual_stats a[],
+		combinedteam c[]) {
+	int i, j;
+	int count = 0;
+
+	for (i = start_index; i <= end_index; i++) {
+		for (j = 0; j < NO_TEAMS; j++) {
+			c[count].year = a[i].year;
+			strcpy(c[count].team_name, a[i].teams[j].team_name);
+			c[count].games = a[i].teams[j].games;
+			c[count].pts_per_game = a[i].teams[j].pts_per_game;
+			c[count].total_points = a[i].teams[j].total_points;
+			c[count].scrimmage_plays = a[i].teams[j].scrimmage_plays;
+			c[count].yds_per_game = a[i].teams[j].yds_per_game;
+			c[count].yds_per_play = a[i].teams[j].yds_per_play;
+			c[count].first_per_game = a[i].teams[j].first_per_game;
+			c[count].third_md = a[i].teams[j].third_md;
+			c[count].third_att = a[i].teams[j].third_att;
+			c[count].third_pct = a[i].teams[j].third_pct;
+			c[count].fourth_md = a[i].teams[j].fourth_md;
+			c[count].fourth_att = a[i].teams[j].fourth_att;
+			c[count].fourth_pct = a[i].teams[j].fourth_pct;
+			c[count].penalties = a[i].teams[j].penalties;
+			c[count].pen_yds = a[i].teams[j].pen_yds;
+			strcpy(c[count].top_per_game, a[i].teams[j].top_per_game);
+			c[count].fum = a[i].teams[j].fum;
+			c[count].lost = a[i].teams[j].lost;
+			c[count].to = a[i].teams[j].to;
+			count++;
+		}
+	}
+
+}
+
+void printcombined(combinedteam t[], string field, string order, int len) {
+	cout << endl;
+	if ("team_name" == field) {
+		cout << "Team Name" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int k = 0; k < len; k++) {
+				cout << t[k].team_name << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int k = len - 1; k >= 0; k--) {
+				cout << t[k].team_name << endl;
+
+			}
+		}
+
+	}
+
+	else if ("games" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].games << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].games << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	}
+
+	else if ("pts_per_game" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].pts_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].pts_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("total_points" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].total_points << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].total_points << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("scrimmage_plays" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].scrimmage_plays << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].scrimmage_plays << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("yds_per_game" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("yds_per_play" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_play << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_play << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("first_per_game" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].first_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].first_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("third_md" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_md << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_md << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("third_att" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_att << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_att << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("third_pct" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_pct << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_pct << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("fourth_md" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_md << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_md << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("fourth_att" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_att << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_att << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("fourth_pct" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_pct << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_pct << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("penalties" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].penalties << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].penalties << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("pen_yds" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].pen_yds << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].pen_yds << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("top_per_game" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].top_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].top_per_game << '\t'
+						<< t[i].year << endl;
+
+			}
+		}
+
+	} else if ("fum" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fum << '\t' << t[i].year
+						<< endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fum << '\t' << t[i].year
+						<< endl;
+
+			}
+		}
+
+	} else if ("lost" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].lost << '\t' << t[i].year
+						<< endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].lost << '\t' << t[i].year
+						<< endl;
+
+			}
+		}
+
+	} else if ("to" == field) {
+		cout << "Team Name \t \t" << field << "\tYear" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].to << '\t' << t[i].year
+						<< endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].to << '\t' << t[i].year
+						<< endl;
+
+			}
+		}
+
+	} else {
+		cout << "Error: No such field. PRINT FUNC" << endl;
+	}
+
+}
+void bubblerange(struct combinedteam myarray[], string field, int count,
+		string order) {
+
+	combinedteam t;
+
+//cout<<"Size of my array  "<<a<<endl;
+	for (int a = 1; a < count; a++) {
+		for (int b = 0; b < count - 1; b++) {
+			if (comparefieldcombined(field, myarray[b], myarray[b + 1],
+					order)) {
+				swap2(&myarray[b], &myarray[b + 1]);
+			}
+		}
+	}
+	printcombined(myarray, field, order, count);
+}
+void printfunctionsingle(combinedteam t[], string field, string order,
+		int len) {
+	cout << endl;
+	if ("team_name" == field) {
+		cout << "Team Name" << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int k = 0; k < len; k++) {
+				cout << t[k].team_name << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int k = len - 1; k >= 0; k--) {
+				cout << t[k].team_name << endl;
+
+			}
+		}
+
+	}
+
+	else if ("games" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].games << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].games << endl;
+
+			}
+		}
+
+	}
+
+	else if ("pts_per_game" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].pts_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].pts_per_game << endl;
+
+			}
+		}
+
+	} else if ("total_points" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].total_points << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].total_points << endl;
+
+			}
+		}
+
+	} else if ("scrimmage_plays" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].scrimmage_plays << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].scrimmage_plays << endl;
+
+			}
+		}
+
+	} else if ("yds_per_game" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_game << endl;
+
+			}
+		}
+
+	} else if ("yds_per_play" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_play << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].yds_per_play << endl;
+
+			}
+		}
+
+	} else if ("first_per_game" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].first_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].first_per_game << endl;
+
+			}
+		}
+
+	} else if ("third_md" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_md << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_md << endl;
+
+			}
+		}
+
+	} else if ("third_att" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_att << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_att << endl;
+
+			}
+		}
+
+	} else if ("third_pct" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].third_pct << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].third_pct << endl;
+
+			}
+		}
+
+	} else if ("fourth_md" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_md << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_md << endl;
+
+			}
+		}
+
+	} else if ("fourth_att" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_att << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_att << endl;
+
+			}
+		}
+
+	} else if ("fourth_pct" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fourth_pct << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fourth_pct << endl;
+
+			}
+		}
+
+	} else if ("penalties" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].penalties << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].penalties << endl;
+
+			}
+		}
+
+	} else if ("pen_yds" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].pen_yds << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].pen_yds << endl;
+
+			}
+		}
+
+	} else if ("top_per_game" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].top_per_game << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].top_per_game << endl;
+
+			}
+		}
+
+	} else if ("fum" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].fum << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].fum << endl;
+
+			}
+		}
+
+	} else if ("lost" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].lost << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].lost << endl;
+
+			}
+		}
+
+	} else if ("to" == field) {
+		cout << "Team Name \t \t" << field << endl;
+		if (order.compare("incr") == 0) {
+
+			for (int i = 0; i < len; i++) {
+				cout << t[i].team_name << '\t' << t[i].to << endl;
+
+			}
+		} else if (order.compare("decr") == 0) {
+			for (int i = len - 1; i >= 0; i--) {
+				cout << t[i].team_name << '\t' << t[i].to << endl;
+
+			}
+		}
+
+	} else {
+		cout << "Error: No such field." << endl;
+	}
+
+}
+
+bool comparefieldcombined(string field, combinedteam t1, combinedteam t2,
+		string order) {
+//cout<<field<<endl;
+	int greater = 0;
+	bool result = false;
+	if (field.compare("team_name") == 0) {
+
+		if (strcmp(t1.team_name, t2.team_name) > 0) {
+			greater = 2;
+		} else if (strcmp(t1.team_name, t2.team_name) == 0) {
+			greater = 0;
+		}
+
+	}
+
+	else if (field.compare("games") == 0) {
+
+		greater = greaterthan(t1.games, t2.games);
+
+	} else if (field.compare("pts_per_game") == 0) {
+		greater = greaterthan(t1.pts_per_game, t2.pts_per_game);
+
+	} else if (field.compare("total_points") == 0) {
+		greater = greaterthan(t1.total_points, t2.total_points);
+
+	} else if (field.compare("scrimmage_plays") == 0) {
+		greater = greaterthan(t1.scrimmage_plays, t2.scrimmage_plays);
+
+	} else if (field.compare("yds_per_game") == 0) {
+		greater = greaterthan(t1.yds_per_game, t2.yds_per_game);
+
+	} else if (field.compare("yds_per_play") == 0) {
+		greater = greaterthan(t1.yds_per_play, t2.yds_per_play);
+
+	} else if (field.compare("first_per_game") == 0) {
+		greater = greaterthan(t1.first_per_game, t2.first_per_game);
+
+	} else if (field.compare("third_md") == 0) {
+		greater = greaterthan(t1.third_md, t2.third_md);
+
+	} else if (field.compare("third_att") == 0) {
+		greater = greaterthan(t1.third_att, t2.third_att);
+
+	} else if (field.compare("third_pct") == 0) {
+		greater = greaterthan(t1.third_pct, t2.third_pct);
+
+	} else if (field.compare("fourth_md") == 0) {
+		greater = greaterthan(t1.fourth_md, t2.fourth_md);
+
+	} else if (field.compare("fourth_att") == 0) {
+		greater = greaterthan(t1.fourth_att, t2.fourth_att);
+
+	} else if (field.compare("fourth_pct") == 0) {
+		greater = greaterthan(t1.fourth_pct, t2.fourth_pct);
+
+	} else if (field.compare("penalties") == 0) {
+		greater = greaterthan(t1.penalties, t2.penalties);
+
+	} else if (field.compare("pen_yds") == 0) {
+		greater = greaterthan(t1.pen_yds, t2.pen_yds);
+
+	} else if (field.compare("top_per_game") == 0) {
+		if (strcmp(t1.top_per_game, t2.top_per_game) > 0) {
+			greater = 2;
+		} else if (strcmp(t1.top_per_game, t2.top_per_game) == 0) {
+			greater = 1;
+		}
+
+	} else if (field.compare("fum") == 0) {
+		greater = greaterthan(t1.fum, t2.fum);
+
+	} else if (field.compare("lost") == 0) {
+		greater = greaterthan(t1.lost, t2.lost);
+
+	} else if (field.compare("to") == 0) {
+		greater = greaterthan(t1.to, t2.to);
+
+	} else {
+//cout << "Error: No such field." << endl;
+	}
+
+	result = ifequalc(greater, t1, t2, order);
+
+	return result;
+
+}
+
+bool ifequalc(int greater, combinedteam t1, combinedteam t2, string order) {
+	bool result = false;
+	if (greater == 2) {
+		result = true;
+	} else if (greater == 1) {
+		if (strcmp(t1.team_name, t2.team_name) > 0) {
+			if (order.compare("incr") == 0) {
+				result = true;
+			} else {
+				result = false;
+			}
+		}
+	}
+
+	else {
+		result = false;
+	}
+	return result;
+}
+void find(struct combinedteam myarray[], string field, int count, string item) {
+
+	combinedteam t;
+	for (int a = 1; a < count; a++) {
+		for (int b = 0; b < count - 1; b++) {
+			if (comparefieldcombined(field, myarray[b], myarray[b + 1],
+					"incr")) {
+				swap2(&myarray[b], &myarray[b + 1]);
+			}
+		}
+	}
+	int year = myarray[5].year;
+	cout << "Year: " << year << "\t" << field << "\t\t" << item << endl;
+	if (field.compare("team_name") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << endl;
+		}
+
+		else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t\t Year:" << year
+					<< endl;
+
+		}
+
+	} else if (field.compare("games") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].games << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].games
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].games;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].games << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("pts_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].pts_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].pts_per_game
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].pts_per_game;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].pts_per_game << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("total_points") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].total_points << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].total_points
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].total_points;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].total_points << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("scrimmage_plays") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].scrimmage_plays << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t"
+					<< myarray[0].scrimmage_plays << endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].scrimmage_plays;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].scrimmage_plays << "\t\t Year:" << year
+					<< endl;
+
+		}
+
+	} else if (field.compare("yds_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].yds_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].yds_per_game
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			float sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].yds_per_game;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].yds_per_game << "\t\t Year:" << year << endl;
+
+		}
+	} else if (field.compare("yds_per_play") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].yds_per_play << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].yds_per_play
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			float sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].yds_per_play;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].yds_per_play << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("first_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].first_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t"
+					<< myarray[0].first_per_game << endl;
+		} else if (item.compare("average") == 0) {
+			float sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].first_per_game;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].first_per_game << "\t\t Year:" << year
+					<< endl;
+
+		}
+
+	} else if (field.compare("third_md") == 0) {
+
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].third_md << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].third_md
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].third_md;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].third_md << "\t\t Year:" << year << endl;
+
+		}
+	} else if (field.compare("third_att") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].third_att << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].third_att
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].third_att;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].third_att << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("third_pct") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].third_pct << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].third_pct
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].third_pct;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].third_pct << "\t\t Year:" << year << endl;
+
+		}
+	} else if (field.compare("fourth_md") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fourth_md << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fourth_md
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fourth_md;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fourth_md << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("fourth_att") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fourth_att << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fourth_att
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fourth_att;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fourth_att << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("fourth_pct") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fourth_pct << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fourth_pct
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fourth_pct;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fourth_pct << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("penalties") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].penalties << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].penalties
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].penalties;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].penalties << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("pen_yds") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].pen_yds << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].pen_yds
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].pen_yds;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].pen_yds << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("fum") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fum << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fum << endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fum;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fum << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("lost") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].lost << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].lost
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].lost;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].lost << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("to") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].to << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].to << endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].to;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].to << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("top_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].top_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].top_per_game
+					<< endl;
+		}
+
+		else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[0].top_per_game << "\t\t"
+					<< myarray[n].team_name << "\t\t Year:" << year << endl;
+
+		}
+
+	}
+
+}
+void qfind(struct combinedteam myarray[], string field, int count,
+		string item) {
+
+	combinedteam t;
+	quickSort(myarray, 0, count - 1, field, "incr");
+	int year = myarray[5].year;
+	cout << "Year: " << year << "\t" << field << "\t\t" << item << endl;
+	if (field.compare("team_name") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << endl;
+		}
+
+		else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t\t Year:" << year
+					<< endl;
+
+		}
+
+	} else if (field.compare("games") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].games << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].games
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].games;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].games << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("pts_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].pts_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].pts_per_game
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].pts_per_game;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].pts_per_game << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("total_points") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].total_points << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].total_points
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].total_points;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].total_points << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("scrimmage_plays") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].scrimmage_plays << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t"
+					<< myarray[0].scrimmage_plays << endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].scrimmage_plays;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].scrimmage_plays << "\t\t Year:" << year
+					<< endl;
+
+		}
+
+	} else if (field.compare("yds_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].yds_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].yds_per_game
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			float sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].yds_per_game;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].yds_per_game << "\t\t Year:" << year << endl;
+
+		}
+	} else if (field.compare("yds_per_play") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].yds_per_play << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].yds_per_play
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			float sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].yds_per_play;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].yds_per_play << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("first_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].first_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t"
+					<< myarray[0].first_per_game << endl;
+		} else if (item.compare("average") == 0) {
+			float sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].first_per_game;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].first_per_game << "\t\t Year:" << year
+					<< endl;
+
+		}
+
+	} else if (field.compare("third_md") == 0) {
+
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].third_md << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].third_md
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].third_md;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].third_md << "\t\t Year:" << year << endl;
+
+		}
+	} else if (field.compare("third_att") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].third_att << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].third_att
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].third_att;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].third_att << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("third_pct") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].third_pct << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].third_pct
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].third_pct;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].third_pct << "\t\t Year:" << year << endl;
+
+		}
+	} else if (field.compare("fourth_md") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fourth_md << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fourth_md
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fourth_md;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fourth_md << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("fourth_att") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fourth_att << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fourth_att
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fourth_att;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fourth_att << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("fourth_pct") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fourth_pct << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fourth_pct
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fourth_pct;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fourth_pct << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("penalties") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].penalties << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].penalties
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].penalties;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].penalties << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("pen_yds") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].pen_yds << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].pen_yds
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].pen_yds;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].pen_yds << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("fum") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].fum << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].fum << endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].fum;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].fum << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("lost") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].lost << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].lost
+					<< endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].lost;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].lost << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("to") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].to << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].to << endl;
+		} else if (item.compare("average") == 0) {
+			int sum = 0;
+			for (int i = 0; i < count; i++) {
+				sum += myarray[i].to;
+			}
+			float avg = (float) sum / count;
+			cout << "Average :\t" << avg << "\t\t" << "Year:\t" << year << endl;
+
+		} else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[n].team_name << "\t"
+					<< myarray[n].to << "\t\t Year:" << year << endl;
+
+		}
+
+	} else if (field.compare("top_per_game") == 0) {
+		if (item.compare("max") == 0) {
+			cout << "MAX : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[count - 1].team_name << "\t\t"
+					<< myarray[count - 1].top_per_game << endl;
+
+		} else if (item.compare("min") == 0) {
+			cout << "MIN : \t" << "Year:\t" << year << "\t\t"
+					<< myarray[0].team_name << "\t\t" << myarray[0].top_per_game
+					<< endl;
+		}
+
+		else if (item.compare("median") == 0) {
+			int n = floor((count + 1) / 2);
+			cout << "Median: \t" << myarray[0].top_per_game << "\t\t"
+					<< myarray[n].team_name << "\t\t Year:" << year << endl;
+
+		}
+
+	}
+
+}
+
+void quickSort(struct combinedteam myarray[], int l, int h, string field,
+		string order) {
+
+	if (l < h) {
+		int p = partition(myarray, l, h, field, order);
+
+		quickSort(myarray, l, p - 1, field, order);
+		quickSort(myarray, p + 1, h, field, order);
+	}
+
+}
+
+int partition(struct combinedteam myarray[], int l, int h, string field,
+		string order) {
+	//int x = myarray[h];
+	int i = (l - 1);
+
+	for (int j = l; j <= h - 1; j++) {
+// If current element is smaller than or equal to pivot
+		if (!comparefieldcombined(field, myarray[j], myarray[h], order)) {
+			i++;    // increment index of smaller element
+			swap2(&myarray[i], &myarray[j]);  // Swap current element with index
+		}
+	}
+	swap2(&myarray[i + 1], &myarray[h]);
+	return (i + 1);
+}
+
+team_stats* ParallelMergeSort(team_stats* A, int lo, int hi,string field){
+// Takes an int array and sorts it
+	int mid;
+// Declration
+	if(lo<hi){
+// If there is <2 elements skip
+		mid = (lo+hi)/2;
+// calculates the mid point
+#pragma omp parallel sections num_threads(2) default(shared) firstprivate(mCompC,mSwapC)
+
+// Starts the parallel portion (2 threads)
+{
+	#pragma omp section
+// First portion
+	ParallelMergeSort(A, lo, mid,field);
+// Divides
+	#pragma omp section
+// Second portion
+	ParallelMergeSort(A, mid+1, hi,field);
+}
+//synchronization
+#pragma omp barrier
+// Merges to return the array
+return Merge(A,lo,mid,hi,field);
+	}
+}
+team_stats* Merge(team_stats* A,int p, int q, int r,string field){
+
+	team_stats *B = new team_stats[NO_TEAMS];
+
+	for(int i2 = 0; i2<NO_TEAMS; i2++){
+
+		B[i2]=A[i2];
+	}
+	int i=p, j=q+1, z=p;
+
+	while(i<=q && j<=r){
+// While start is < final value of the 1/2 do...
+		if(!comparefield(field,B[i],B[j],"incr")){
+
+			A[z] = B[i];
+			i++;
+		}else{
+			A[z] = B[j];
+			j++;
+		}
+		z++;
+// Increments the comparison count
+	//	mCompC++;
+// Increments the swap count
+		//mSwapC++;
+	}
+	if(i<=q){
+// Checks which element did not finish writing
+		while(z<=r && i<=q){
+// Finishes assigning values for first 1/2
+               		A[z]=B[i];
+			i++;
+			z++;
+		}
+        }else if(j<=r){
+// Finishes assigning values for second 1/2
+		while(z<=r && i<=q){
+			A[z]=B[j];
+			j++;
+			z++;
+		}
+       	}
+	delete[] B;
+// Returns combined sorted array
+	return A;
+
+}
